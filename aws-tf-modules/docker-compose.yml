@@ -1,0 +1,50 @@
+---
+version: '3.8'
+services:
+  terraform:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/terraform:tf-0.13.5
+    env_file: .env
+    working_dir: /opt/app/${TF_PATH}
+    volumes:
+      - ~/.aws:/opt/app/.aws
+      - .:/opt/app:rw
+      - ~/.terraform.d/plugins:/opt/app/.terraform.d/plugins
+      - ~/.ssh:/opt/app/.ssh:rw
+      - ./passwd:/etc/passwd:rw
+  tfsec:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/tfsec:${TFSEC_TAG:?} # semver: >=5.0.0,<6.0.0
+    env_file: .env
+    working_dir: /opt/app/${TF_PATH}
+    volumes:
+      - ~/.aws:/opt/app/.aws
+      - .:/opt/app:rw
+      - ~/.terraform.d/plugins:/opt/app/.terraform.d/plugins
+      - ~/.ssh:/opt/app/.ssh:rw
+      - ./passwd:/etc/passwd:rw
+  tflint:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/tflint:${TFLINT_TAG:?} # semver: >=0.1.0,<1.0.0
+    env_file: .env
+    working_dir: /opt/app/${TF_PATH}
+    volumes:
+      - .:/opt/app:rw
+      - ./passwd:/etc/passwd:rw
+  checkov:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/checkov:${CHECKOV_TAG:?} # semver: =0.1.0
+    working_dir: /opt/app/${TF_PATH}
+    env_file: .env
+    volumes:
+      - .:/opt/app:rw
+      - ./passwd:/etc/passwd:rw
+      - ~/.terraform.d/plugins:/.terraform.d/plugins
+  aws:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/aws-cli:${AWS_TAG:?} # semver: >=2.9.1,<3.0.0
+    env_file: .env
+    working_dir: /opt/app
+    volumes:
+      - ~/.aws:/opt/app/.aws
+      - .:/opt/app:rw
+      - ./passwd:/etc/passwd:rw
+  passwd-gen:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/passwd-gen:${PASSWD_GEN_TAG:?} # semver: >=0.2.0,<1.0.0
+    env_file: .env
+    working_dir: /opt/app

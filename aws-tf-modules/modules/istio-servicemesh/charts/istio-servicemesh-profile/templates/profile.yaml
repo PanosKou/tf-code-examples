@@ -1,0 +1,3 @@
+{{ if .Values.profile_name }}
+{{ tpl (.Files.Get (printf "profiles/%s-servicemesh-profile.yaml" .Values.profile_name)) . }}
+{{ end }}

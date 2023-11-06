@@ -1,0 +1,26 @@
+image:
+  pullPolicy: IfNotPresent
+  repository: ${container_registry}/autoscaling/cluster-autoscaler
+  tag: v1.18.1
+
+cloudProvider: aws
+
+awsRegion: ${region}
+
+  
+rbac:
+  create: true
+  pspEnabled: ${psp_enabled}
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: "${role_arn}"
+
+serviceMonitor:
+  enabled: ${service_monitor_enabled}
+
+autoDiscovery:
+  clusterName:  ${cluster_name}
+
+  roles:
+  - worker
+

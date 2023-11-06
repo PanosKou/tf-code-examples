@@ -1,0 +1,4 @@
+foo: ${bar}
+
+image:
+  repository: ${container_registry}:/xyz

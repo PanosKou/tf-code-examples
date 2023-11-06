@@ -1,0 +1,19 @@
+
+serviceAccount:
+  create: true
+
+podSecurityPolicy:
+  create: ${psp_enabled}
+
+calico:
+  tag: v3.15.1
+
+  typha:
+    image: ${container_registry}/aws-calico/typha
+
+  node:
+    image: ${container_registry}/aws-calico/node
+
+autoscaler:
+  tag: "1.7.1"
+  image: ${container_registry}/aws-calico/cluster-proportional-autoscaler-amd64

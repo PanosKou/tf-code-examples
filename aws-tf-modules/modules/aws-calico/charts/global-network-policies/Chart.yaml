@@ -1,0 +1,4 @@
+apiVersion: v1
+name: global-network-policies
+version: 0.0.1
+description: A Helm chart for calico default network policies

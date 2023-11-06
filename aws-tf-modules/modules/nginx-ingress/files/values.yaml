@@ -1,0 +1,55 @@
+controller:
+  image:
+    repository: ${container_registry}/ingress-nginx/controller
+    tag: "v0.41.2"
+    digest: ""
+    pullPolicy: IfNotPresent
+
+  ingressClass: ${ingress_class}
+
+  resources:
+    requests:
+      memory: 90Mi
+      cpu: 100m
+
+  service:
+
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+      service.beta.kubernetes.io/aws-load-balancer-type: nlb
+
+  admissionWebhooks:
+    patch:
+      enabled: true
+      image:
+        repository: ${container_registry}/ingress-nginx/kube-webhook-certgen
+        tag: v1.5.0
+        pullPolicy: IfNotPresent
+
+  metrics:
+    enabled: true
+
+    serviceMonitor:
+      enabled: ${service_monitor_enabled}
+
+
+defaultBackend:
+  enabled: true
+
+  image:
+    repository: k8sgcr-docker-remote.artifactory.aws.nbscloud.co.uk/defaultbackend-amd64
+    tag: "1.5"
+    pullPolicy: IfNotPresent
+
+  resources:
+    limits:
+      cpu: 10m
+      memory: 20Mi
+    requests:
+      cpu: 10m
+      memory: 20Mi
+
+# If true, create & use Pod Security Policy resources
+# https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+podSecurityPolicy:
+  enabled: ${psp_enabled}

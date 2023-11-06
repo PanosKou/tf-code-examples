@@ -1,0 +1,17 @@
+---
+version: '3.8'
+services:
+  terraform:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/terraform:tf-0.13.5
+    env_file: .env
+    working_dir: /opt/app/
+    volumes:
+      - ~/.aws:/.aws
+      - .:/opt/app:rw
+      - ./passwd:/etc/passwd:rw
+      - ~/.terraform.d/plugins:/opt/app/.terraform.d/plugins
+      - ~/.ssh:/opt/app/.ssh:rw
+  passwd-gen:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/passwd-gen:0.7.2
+    env_file: .env
+    working_dir: /opt/app

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "properties": {
+    "availabilityZones": {
+      "description": "List of Availability Zones and subnet IDs",
+      "type": "array",
+      "items": { "$ref": "#/definitions/subnet" }
+    },
+    "eksPodSecurityGroup": {
+      "description": "Optional AWS Security Group to attach to Pods",
+      "type": ["string", "null"],
+      "pattern": "^sg-\\d+"
+    }
+  },
+  "definitions": {
+    "subnet": {
+      "type": "object",
+      "required": [ "name", "id" ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the AZ in xx-xxxx-[1/2/3][a/b/b]."
+        },
+        "id": {
+          "type": "string",
+          "description": "The subnet ID in subnet-11111111 format"
+        }
+      }
+    }
+  },
+  "title": "Values",
+  "type": "object"
+}

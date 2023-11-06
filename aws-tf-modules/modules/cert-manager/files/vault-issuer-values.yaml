@@ -1,0 +1,11 @@
+vault:
+  path: "${vault_path}"
+  server: "${vault_server}"
+  namespace: "${vault_backend_namespace}"
+  caBundle: ${caBundle}
+  auth:
+    kubernetes:
+      role: "${vault_role}"
+      mountPath: "${vault_mount_path}"
+      secretRef:
+        name: "${certmgr_sa_secret}"

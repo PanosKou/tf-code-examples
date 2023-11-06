@@ -1,0 +1,46 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-same-namespace
+  namespace: kube-system
+spec:
+  podSelector: {}
+  ingress:
+    - from:
+      - podSelector: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-api-server-to-metrics-server
+  namespace: kube-system
+spec:
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 4443
+    - protocol: TCP
+      port: 10250
+    - protocol: TCP
+      port: 443
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 10250
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 4443
+  podSelector:
+   matchLabels:
+     k8s-app: metrics-server
+  policyTypes:
+  - Ingress
+  - Egress

@@ -1,0 +1,22 @@
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: default-allow-dns
+spec:
+  egress:
+  - action: Allow
+    destination:
+      ports:
+      - 53
+    namespaceSelector: projectcalico.org/name in {"kube-system"}
+    protocol: UDP
+  ingress:
+  - action: Allow
+    destination:
+      ports:
+      - 53
+    namespaceSelector: projectcalico.org/name in {"kube-system"}
+    protocol: UDP
+  types:
+  - Ingress
+  - Egress

@@ -1,0 +1,51 @@
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: istio-cni
+spec:
+  allowedHostPaths:
+  - pathPrefix: /etc/cni/net.d
+    readOnly: false
+  - pathPrefix: /opt/cni/bin
+    readOnly: false
+  fsGroup:
+    rule: RunAsAny
+  hostNetwork: true
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - hostPath
+  - secret
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: istio-cni-psp
+  namespace: istio-system
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - istio-cni
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: istio-cni-psp
+  namespace: istio-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: istio-cni-psp
+subjects:
+- kind: ServiceAccount
+  name: istio-cni
+  namespace: istio-system

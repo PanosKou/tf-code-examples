@@ -1,0 +1,107 @@
+daemonset:
+  enabled: false
+
+deployment:
+  extraVolumes:
+  - name: root-ca
+    hostPath:
+      path: /etc/pki/ca-trust/source/anchors/root_ca.pem
+      type: FileOrCreate
+  extraVolumeMounts:
+  - name: root-ca
+    mountPath: /usr/share/filebeat/root_ca.pem
+    readOnly: true
+  metricbeatConfig:
+    metricbeat.yml: |
+      metricbeat.modules:
+        - module: prometheus
+          period: ${prometheus_period}
+          hosts: ["${prometheus_host_port}"]
+          metrics_path: '/federate'
+          query:
+            'match[]': '{__name__!=""}'
+      processors:
+        - add_fields:
+            fields:
+              cluster_name: ${cluster_name}
+      output.logstash:
+        hosts: ["${logstash_host}:${logstash_port}"]
+        pipelining: 0
+        ttl: 3s
+        ssl.certificate_authorities: ["/usr/share/filebeat/root_ca.pem"]
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "500Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+
+image: "${container_registry}/beats/metricbeat"
+imageTag: "${image_tag}"
+
+
+livenessProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - |
+        #!/usr/bin/env bash -e
+        curl --fail 127.0.0.1:5066
+  failureThreshold: 6
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+
+readinessProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - |
+        #!/usr/bin/env bash -e
+        metricbeat test output
+  failureThreshold: 6
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+
+
+kube_state_metrics:
+  enabled: false
+
+
+managedServiceAccount: true
+
+clusterRoleRules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - namespaces
+  - events
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["extensions"]
+  resources:
+  - replicasets
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources:
+  - statefulsets
+  - deployments
+  - replicasets
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - nodes/stats
+  verbs: ["get"]
+- apiGroups: 
+  - policy
+  resources: 
+  - podsecuritypolicies
+  verbs:
+  - use
+  resourceNames:
+  - metricbeat

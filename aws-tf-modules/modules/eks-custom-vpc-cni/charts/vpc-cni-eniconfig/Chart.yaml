@@ -1,0 +1,12 @@
+apiVersion: v1
+appVersion: "1.01"
+description: A Helm chart for configuring the ENIConfig resources for AWS VPC-CNI, which will update an existing aws-node deployment.
+name: vpc-cni-config
+version: 0.1
+home: https://github.com/nationwide-building-society/epaas-components
+maintainers:
+  - name: Steve Randall
+    email: stephen.randall@nationwide.co.uk
+sources:
+  - https://docs.aws.amazon.com/eks/latest/userguide/cni-custom-network.html
+

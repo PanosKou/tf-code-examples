@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: allow-kiali-egress
+spec:
+  egress:
+  - to:
+    - namespaceSelector: {}
+    - podSelector: {}
+    - ipBlock:
+        cidr: 0.0.0.0/0
+  podSelector:
+   matchLabels:
+     app: kiali
+  policyTypes:
+  - Egress

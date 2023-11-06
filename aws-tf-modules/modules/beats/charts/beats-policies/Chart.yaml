@@ -1,0 +1,5 @@
+apiVersion: v1
+name: beats-policies
+version: v0.1.0
+appVersion: v0.1.0
+description: Sbeats network policies and psps.

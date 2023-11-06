@@ -1,0 +1,9 @@
+# These are dummy entries as these values will always be supplied by upstream terraform
+availabilityZones:
+  - name: eu-west-2a
+    id: null
+  - name: eu-west-2b
+    id: null
+  - name: eu-west-2c
+    id: null
+eksPodSecurityGroup: null

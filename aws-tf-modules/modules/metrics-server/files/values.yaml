@@ -1,0 +1,3 @@
+image:
+  repository: ${container_registry}/metrics-server/metrics-server
+  tag: "v0.4.1"

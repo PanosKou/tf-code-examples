@@ -1,0 +1,38 @@
+
+image:
+  pullPolicy: IfNotPresent
+  registry: ${container_registry}
+  repository: external-dns/external-dns
+  tag: 0.7.4-debian-10-r29
+
+provider: aws
+
+aws:
+  region: ${region}
+
+rbac:
+  apiVersion: v1
+  clusterRole: true
+  create: true
+  pspEnabled: ${psp_enabled}
+
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: "${role_arn}"
+  create: true
+  name: external-dns
+
+txtOwnerId: ${owner_id}
+txtPrefix: ${owner_id}
+
+metrics:
+  enabled: true
+
+  serviceMonitor:
+    enabled: ${service_monitor_enabled}
+
+sources:
+  - service
+  - ingress
+  - istio-gateway
+  - istio-virtualservice

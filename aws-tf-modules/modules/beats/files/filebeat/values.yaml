@@ -1,0 +1,84 @@
+extraVolumes:
+- name: root-ca
+  hostPath:
+    path: /etc/pki/ca-trust/source/anchors/root_ca.pem
+    type: FileOrCreate
+extraVolumeMounts:
+- name: root-ca
+  mountPath: /usr/share/filebeat/root_ca.pem
+  readOnly: true
+filebeatConfig:
+  filebeat.yml: |
+    filebeat.inputs:
+      - type: container
+        paths:
+          - /var/log/containers/*.log
+        processors:
+        - add_kubernetes_metadata:
+            host: $${NODE_NAME}
+            matchers:
+              - logs_path:
+                  logs_path: "/var/log/containers/"
+        - add_fields:
+            fields:
+              cluster_name: ${cluster_name}
+      - type: log
+        paths:
+          - /var/log/messages
+        processors:
+        - add_kubernetes_metadata:
+            host: $${NODE_NAME}
+            matchers:
+              - logs_path:
+                  logs_path: "/var/log/messages"
+        - add_fields:
+            fields:
+              cluster_name: ${cluster_name}             
+    output.logstash:
+      hosts: ["${logstash_host}:${logstash_port}"]
+      pipelining: 0
+      ttl: 3s
+      ssl.certificate_authorities: ["/usr/share/filebeat/root_ca.pem"]
+image: "${container_registry}/beats/filebeat"
+imageTag: "${image_tag}"
+
+
+livenessProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - |
+        #!/usr/bin/env bash -e
+        curl --fail 127.0.0.1:5066
+  failureThreshold: 6
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+
+readinessProbe:
+  exec:
+    command:
+      - sh
+      - -c
+      - |
+        #!/usr/bin/env bash -e
+        filebeat test output
+  failureThreshold: 6
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "500Mi"
+  limits:
+    cpu: "1000m"
+    memory: "1Gi"
+
+
+managedServiceAccount: false
+
+serviceAccount: "filebeat"

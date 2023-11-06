@@ -1,0 +1,1 @@
+@eks.eks,@eks.api,@eks.sc,@eks.ingress,@eks.monitoring,@eks.certmgr,@eks.extdns,@eks.metrics,@eks.calico,@eks.istio_operator,@eks.metrics_server,@eks.istio_servicemeshprofile,@eks.sc,@eks.cluster_autoscaler,@eks.psp

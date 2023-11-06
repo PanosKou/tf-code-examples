@@ -1,0 +1,46 @@
+---
+version: '3.8'
+services:
+  terraform:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/terraform:tf-0.13.5
+    env_file: .env
+    working_dir: /opt/app/${TF_PATH}
+    volumes:
+      - ~/.aws:/.aws
+      - .:/opt/app:rw
+      - ./passwd:/etc/passwd:rw
+      - ~/.terraform.d/plugins:/opt/app/.terraform.d/plugins
+      - ~/.ssh:/opt/app/.ssh:rw
+  aws:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/aws-cli:2.2.0
+    env_file: .env
+    working_dir: /opt/app
+    volumes:
+      - ~/.aws:/opt/app/.aws
+      - .:/opt/app:rw
+      - ~/.terraform.d/plugins:/opt/app/.terraform.d/plugins
+      - ./passwd:/etc/passwd:rw
+      - ~/.ssh:/opt/app/.ssh:rw
+  passwd-gen:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/passwd-gen:0.7.2
+    env_file: .env
+    working_dir: /opt/app
+  python:
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/aws-eks-bdd-tests:0.1.0
+    env_file: .env
+    working_dir: /opt/app
+    volumes:
+      - .:/opt/app:rw
+      - ./passwd:/etc/passwd:rw
+      - ~/.aws:/opt/app/.aws
+      - ~/.ssh:/opt/app/.ssh:rw
+  checkov: 
+    image: dev-docker-rel-local.artifactory.aws.cloud.co.uk/lz-checkov:checkov-1.0.692
+    env_file: .env
+    working_dir: /opt/app/${TF_PATH}
+    volumes:
+      - ~/.aws:/.aws
+      - .:/opt/app:rw
+      - ./passwd:/etc/passwd:rw
+      - ~/.terraform.d/plugins:/opt/app/.terraform.d/plugins
+      - ~/.ssh:/opt/app/.ssh:rw

@@ -1,0 +1,23 @@
+aggregationRule:
+    clusterRoleSelectors:
+      - matchLabels:
+          rbac.authorization.k8s.io/aggregate-to-view: "true"
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: epaas:read
+rules: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: epaas:read
+subjects:
+- kind: Group
+  name: epaas:read
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: epaas:read
+  apiGroup: rbac.authorization.k8s.io
+  

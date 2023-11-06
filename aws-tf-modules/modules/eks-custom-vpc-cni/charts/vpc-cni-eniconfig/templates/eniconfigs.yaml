@@ -1,0 +1,13 @@
+{{- range $key, $value := .Values.availabilityZones }}
+---
+apiVersion: crd.k8s.amazonaws.com/v1alpha1
+kind: ENIConfig
+metadata: 
+  name: {{ $value.name }}
+spec: 
+  subnet: {{ $value.id }}
+{{- if $.Values.eksPodSecurityGroup }}
+  securityGroups:
+  - {{ $.Values.eksPodSecurityGroup }}
+{{- end }}
+{{- end }}

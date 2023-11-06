@@ -1,0 +1,27 @@
+name: 'Terraform Format Check'
+
+on: [push]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:  
+  terraform-format-check:
+    name: 'Terraform Format Check' 
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 0.13.5
+        terraform_wrapper: false
+    
+    - name: Run Terraform Format Check
+      run: terraform fmt -check -recursive 

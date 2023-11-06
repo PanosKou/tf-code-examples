@@ -1,0 +1,171 @@
+# istiod needs to talk to the api-server
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-istiod-api-server
+  namespace: istio-system
+spec:
+  podSelector: {}
+  egress:
+  - to:
+    - namespaceSelector: {}
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - port: 443
+      protocol: TCP
+  policyTypes:
+  - Egress
+---
+# Webhook access is needed from the api-server
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-istiod-webhook-access
+  namespace: istio-system
+spec:
+  podSelector:
+    matchLabels:
+      app: istiod
+  ingress:
+  - from:
+    - namespaceSelector: {}
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - port: 443
+      protocol: TCP
+    - port: 15017
+      protocol: TCP
+    - port: 8080
+      protocol: TCP
+  policyTypes:
+  - Ingress
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-same-namespace
+  namespace: istio-system
+spec:
+  podSelector: {}
+  ingress:
+  - from:
+    - podSelector: {}
+  egress:
+  - to:
+    - podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+# allow istiod access from injected namespaces
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-istiod-from-namespace
+  namespace: istio-system
+spec:
+  ingress:
+  - from:
+    - namespaceSelector: {}
+    - podSelector:
+        matchLabels:
+          istio-injection: enabled
+    ports:
+    - port: 15021
+      protocol: TCP
+    - port: 443
+      protocol: TCP
+    - port: 15012
+      protocol: TCP
+    - port: 15017
+      protocol: TCP
+  podSelector:
+   matchLabels:
+    app: istiod
+  policyTypes:
+  - Ingress
+---
+# Allow the ingressgateway to access the backend services any dest port in injected namespaces
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingressgateway-egress
+  namespace: istio-system
+spec:
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          istio-injection: enabled
+    - podSelector: {}
+  podSelector:
+    matchLabels:
+      app: istio-ingressgateway
+  policyTypes:
+  - Egress
+---
+# Allow access from upstream AWS NLB only svc TargetPorts matter
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingressgateway-ingress
+  namespace: istio-system
+spec:
+  podSelector:
+    matchLabels:
+      app: istio-ingressgateway
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 8443
+    - protocol: TCP
+      port: 15021
+    - protocol: TCP
+      port: 15443
+  policyTypes:
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-prometheus
+  namespace: istio-system
+spec:
+  ingress:
+  - ports:
+    - port: 15020
+      protocol: TCP
+    - port: 15090
+      protocol: TCP
+    - port: 9153
+      protocol: TCP
+  - from:
+    - namespaceSelector: {}
+    - podSelector:
+        matchLabels:
+          app: prometheus
+  podSelector: {}
+  policyTypes:
+  - Ingress
+---
+# Allow egress-gateway access to external networks
+# allow istiod access from injected namespaces
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egressgateway-egress
+  namespace: istio-system
+spec:
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+  podSelector:
+   matchLabels:
+    app: istio-egressgateway
+  policyTypes:
+  - Egress

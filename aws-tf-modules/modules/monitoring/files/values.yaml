@@ -1,0 +1,73 @@
+alertmanager:
+    image:
+      repository: ${container_registry}/prometheus-operator/alertmanager
+      tag: v0.21.0
+
+grafana:
+  enabled: true
+
+  rbac:
+    pspUseAppArmor: false
+
+  ingress:
+    enabled: true
+
+    annotations:
+      kubernetes.io/ingress.class: "${ingress_class}"
+
+    hosts:
+       - grafana-${cluster_name}.${private_hosted_zone}
+
+
+    image:
+      repository: ${container_registry}/prometheus-operator/ghostunnel
+      tag: v1.5.2
+      sha: ""
+      pullPolicy: IfNotPresent
+    resources: {}
+
+prometheusOperator:
+
+  tls:
+    enabled: false
+
+    patch:
+      enabled: true
+      image:
+        repository: ${container_registry}/prometheus-operator/kube-webhook-certgen
+        tag: v1.2.1
+
+  image:
+    repository: ${container_registry}/prometheus-operator/prometheus-operator
+    tag: v0.42.1
+    pullPolicy: IfNotPresent
+
+  configmapReloadImage:
+    repository: ${container_registry}/prometheus-operator/configmap-reload
+    tag: v0.4.0
+
+  prometheusConfigReloaderImage:
+    repository: ${container_registry}/prometheus-operator/prometheus-config-reloader
+    tag: v0.42.1
+
+  kubectlImage:
+    repository: ${container_registry}/prometheus-operator/kubectl
+    tag: 1.16.15
+
+prometheus:
+  enabled: true
+
+  ingress:
+    enabled: true
+
+    annotations:
+      kubernetes.io/ingress.class: "${ingress_class}"
+
+    hosts:
+      - prometheus-${cluster_name}.${private_hosted_zone}
+
+  prometheusSpec:
+
+    serviceMonitorSelectorNilUsesHelmValues: false
+
+    podMonitorSelectorNilUsesHelmValues: false
